@@ -8,6 +8,10 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+#[crate_type = "lib"];
+
+pub mod issue_3136_a;
+
 trait x {
     fn use_x<T>(&self);
 }

@@ -273,20 +273,12 @@ pub fn make_tests(config: &config) -> ~[test::TestDescAndFn] {
 }
 
 pub fn is_test(config: &config, testfile: &Path) -> bool {
-    // Pretty-printer does not work with .rc files yet
-    let valid_extensions =
-        match config.mode {
-          mode_pretty => ~[~".rs"],
-          _ => ~[~".rc", ~".rs"]
-        };
     let invalid_prefixes = ~[~".", ~"#", ~"~"];
     let name = testfile.filename_str().unwrap();
 
     let mut valid = false;
 
-    for ext in valid_extensions.iter() {
-        if name.ends_with(*ext) { valid = true; }
-    }
+    if name.ends_with(".rc") { valid = true; }
 
     for pre in invalid_prefixes.iter() {
         if name.starts_with(*pre) { valid = false; }
