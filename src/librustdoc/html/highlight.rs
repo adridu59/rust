@@ -26,7 +26,10 @@ use html::escape::Escape;
 use t = syntax::parse::token;
 
 /// Highlights some source code, returning the HTML output.
-pub fn highlight(src: &str, class: Option<&str>) -> ~str {
+///
+/// Note: this will not wrap the code into a `<pre>` tag, allowing different
+/// encapsulating patterns.
+pub fn highlight(src: &str) -> ~str {
     let sess = parse::new_parse_sess();
     let handler = diagnostic::default_handler();
     let span_handler = diagnostic::mk_span_handler(handler, sess.cm);
@@ -35,7 +38,6 @@ pub fn highlight(src: &str, class: Option<&str>) -> ~str {
     let mut out = io::MemWriter::new();
     doit(sess,
          lexer::new_string_reader(span_handler, fm),
-         class,
          &mut out).unwrap();
     str::from_utf8_lossy(out.unwrap()).into_owned()
 }
@@ -47,11 +49,10 @@ pub fn highlight(src: &str, class: Option<&str>) -> ~str {
 /// it's used. All source code emission is done as slices from the source map,
 /// not from the tokens themselves, in order to stay true to the original
 /// source.
-fn doit(sess: @parse::ParseSess, lexer: lexer::StringReader, class: Option<&str>,
-        out: &mut Writer) -> io::IoResult<()> {
+fn doit(sess: @parse::ParseSess, lexer: lexer::StringReader, out: &mut Writer)
+                        -> io::IoResult<()> {
     use syntax::parse::lexer::Reader;
 
-    try!(write!(out, "<pre class='rust {}'>\n", class.unwrap_or("")));
     let mut last = BytePos(0);
     let mut is_attribute = false;
     let mut is_macro = false;
@@ -181,5 +182,5 @@ fn doit(sess: @parse::ParseSess, lexer: lexer::StringReader, class: Option<&str>
         }
     }
 
-    write!(out, "</pre>\n")
+    Ok(())
 }

@@ -1625,18 +1625,24 @@ impl<'a> fmt::Show for Source<'a> {
             cols += 1;
             tmp /= 10;
         }
-        try!(write!(fmt.buf, "<pre class='line-numbers'>"));
+
+        let mut line_iter = s.lines();
+        try!(write!(fmt.buf, "<pre class='rust'>\n"));
+        try!(write!(fmt.buf, "<ol>\n"));
         for i in range(1, lines + 1) {
-            try!(write!(fmt.buf, "<span id='{0:u}'>{0:1$u}</span>\n", i, cols));
+            try!(write!(fmt.buf, "<li id='{0:u}'>", i, cols));
+            try!(write!(fmt.buf, "{}", highlight::highlight(line_iter.next())));
+            try!(write!(fmt.buf, "</li>\n"));
         }
-        try!(write!(fmt.buf, "</pre>"));
-        try!(write!(fmt.buf, "{}", highlight::highlight(s.as_slice(), None)));
+        try!(write!(fmt.buf, "</ol>\n</pre>\n"));
         Ok(())
     }
 }
 
 fn item_macro(w: &mut Writer, it: &clean::Item,
               t: &clean::Macro) -> fmt::Result {
-    try!(w.write_str(highlight::highlight(t.source, Some("macro"))));
+    try!(w.write_str("<pre class='rust macro'>\n"));
+    try!(w.write_str(highlight::highlight(t.source)));
+    try!(w.write_str("</pre>\n"));
     document(w, it)
 }
